@@ -19,3 +19,4 @@ This system is developed keeping in view Model - Controller pattern data models 
 2. Can use popular relational or no-sql databases e.g. postgres, mongodb etc depending upon the requirement.
 3. Can also add more features like notification to users, suggestions to users over email at regular interval.
 
+Assignment for question available at https://proximity-tech.github.io/be-challenge/ 
