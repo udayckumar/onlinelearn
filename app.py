@@ -1,11 +1,11 @@
+import json
 import logging
 import os
 
 from flask import Flask, request
 from flask_marshmallow import Marshmallow
 from flask_sqlalchemy import SQLAlchemy
-
-DATABASE = 'onlineclass.db'
+from werkzeug.exceptions import HTTPException
 
 logging.basicConfig(filename='onlineclass.log', level=logging.INFO,
                     format=f'%(asctime)s %(levelname)s %(name)s %(threadName)s %(filename)s %(lineno)s: %(message)s')
@@ -29,45 +29,24 @@ from model.TagSchema import TagSchema
 tag_schema = TagSchema()
 tags_schema = TagSchema(many=True)
 
-#
-# def get_db():
-#     """
-#     Create a db instance
-#     :return:
-#     """
-#     db = getattr(g, '_database', None)
-#     if db is None:
-#         db = g._database = sqlite3.connect(DATABASE)
-#     return db
-#
-#
-# @app.route('/')
-# def online_class_home():
-#     return 'Welcome to your Online class!'
-#
-#
-# @app.errorhandler(HTTPException)
-# def handle_error(e):
-#     """
-#     Method to handle error cases
-#     :param e: error
-#     :return: Response message
-#     """
-#     response = e.get_response()
-#     # replace the body with JSON
-#     response.data = json.dumps({
-#         "code": e.code,
-#         "name": e.name,
-#         "description": e.description,
-#     })
-#     response.content_type = "application/json"
-#     return response
-#
-#
-# from service.course_service import create_course, edit_course, get_all_courses
-#
-#
-# ##### Instructor allowed operations #####
+
+@app.errorhandler(HTTPException)
+def handle_error(e):
+    """
+    Method to handle error cases
+    :param e: error
+    :return: Response message
+    """
+    response = e.get_response()
+    # replace the body with JSON
+    response.data = json.dumps({
+        "code": e.code,
+        "name": e.name,
+        "description": e.description,
+    })
+    response.content_type = "application/json"
+    return response
+
 
 from service import tag_service, subject_service, user_service
 
@@ -185,21 +164,6 @@ def video(video_id=None):
     elif request.method == 'DELETE':
         return video_service.delete_video(video_id)
 
-
-# Swagger-UI
-# from flask_swagger_ui import get_swaggerui_blueprint
-#
-# SWAGGER_URL = '/api/docs'  # URL for exposing Swagger UI (without trailing '/')
-# API_URL = 'http://petstore.swagger.io/v2/swagger.json'
-# # Call factory function to create our blueprint
-# swaggerui_blueprint = get_swaggerui_blueprint(
-#     SWAGGER_URL,  # Swagger UI static files will be mapped to '{SWAGGER_URL}/dist/'
-#     API_URL,
-#     config={  # Swagger UI config overrides
-#         'app_name': "Online Class"
-#     }
-# )
-# app.register_blueprint(swaggerui_blueprint)
 
 if __name__ == '__main__':
     # my_class = OnlineLearning()
