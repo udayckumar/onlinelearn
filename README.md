@@ -14,6 +14,9 @@ This system is developed keeping in view Model - Controller pattern data models 
 `Framework`: Flask <br/>
 `Packages used`: request, json, uuid
 
+#### Resources:
+onlineclass_db.sqlite : Database for the project
+
 #### Future scope:
 1. Concrete implementation of business logic can be done
 2. Can use popular relational or no-sql databases e.g. postgres, mongodb etc depending upon the requirement.

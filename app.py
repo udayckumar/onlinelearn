@@ -1,169 +1,206 @@
 import logging
-import sqlite3
+import os
 
-from flask import Flask, request, json
-from flask import g
-from werkzeug.exceptions import HTTPException
+from flask import Flask, request
+from flask_marshmallow import Marshmallow
+from flask_sqlalchemy import SQLAlchemy
 
 DATABASE = 'onlineclass.db'
-
-from model import OnlineLearning
 
 logging.basicConfig(filename='onlineclass.log', level=logging.INFO,
                     format=f'%(asctime)s %(levelname)s %(name)s %(threadName)s %(filename)s %(lineno)s: %(message)s')
 
+# Initialize app
 app = Flask(__name__)
+basedir = os.path.abspath(os.path.dirname(__file__))
+
+# DB Configuration
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'resources/onlineclass_db.sqlite')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Init db
+db = SQLAlchemy(app)
+# Init ma
+ma = Marshmallow(app)
+
+from model.TagSchema import TagSchema
+
+# Init schema
+tag_schema = TagSchema()
+tags_schema = TagSchema(many=True)
+
+#
+# def get_db():
+#     """
+#     Create a db instance
+#     :return:
+#     """
+#     db = getattr(g, '_database', None)
+#     if db is None:
+#         db = g._database = sqlite3.connect(DATABASE)
+#     return db
+#
+#
+# @app.route('/')
+# def online_class_home():
+#     return 'Welcome to your Online class!'
+#
+#
+# @app.errorhandler(HTTPException)
+# def handle_error(e):
+#     """
+#     Method to handle error cases
+#     :param e: error
+#     :return: Response message
+#     """
+#     response = e.get_response()
+#     # replace the body with JSON
+#     response.data = json.dumps({
+#         "code": e.code,
+#         "name": e.name,
+#         "description": e.description,
+#     })
+#     response.content_type = "application/json"
+#     return response
+#
+#
+# from service.course_service import create_course, edit_course, get_all_courses
+#
+#
+# ##### Instructor allowed operations #####
+
+from service import tag_service, subject_service, user_service
 
 
-def get_db():
-    """
-    Create a db instance
-    :return:
-    """
-    db = getattr(g, '_database', None)
-    if db is None:
-        db = g._database = sqlite3.connect(DATABASE)
-    return db
-
-
-@app.route('/')
-def online_class_home():
-    return 'Welcome to your Online class!'
-    # abort(400)
-
-
-@app.errorhandler(HTTPException)
-def handle_error(e):
-    """
-    Method to handle error cases
-    :param e: error
-    :return: Response message
-    """
-    # response_code = 400
-    # response_message = 'Bad request'
-    # if isinstance(e, HTTPException):
-    #     response_code = e.code
-    #     response_message = e.description
-    # return jsonify(error=response_message + ' | HTTP response code = ' + str(response_code))
-
-    """Return JSON instead of HTML for HTTP errors."""
-    # start with the correct headers and status code from the error
-    response = e.get_response()
-    # replace the body with JSON
-    response.data = json.dumps({
-        "code": e.code,
-        "name": e.name,
-        "description": e.description,
-    })
-    response.content_type = "application/json"
-    return response
-
-
-from service.course_service import create_course, edit_course, get_all_courses
-
-
-@app.route('/course', methods=['GET', 'POST'])
-def get_add_courses():
+@app.route('/users', methods=['GET', 'POST'])
+def users():
     if request.method == 'GET':
-        return get_all_courses()
+        return user_service.get_users()
     elif request.method == 'POST':
-        return create_course()
+        return user_service.add_user()
+
+
+@app.route('/user/<user_id>', methods=['GET', 'PUT', 'DELETE'])
+def user(user_id):
+    if request.method == 'GET':
+        return user_service.get_user(user_id)
+    elif request.method == 'PUT':
+        return user_service.update_user(user_id)
+    elif request.method == 'DELETE':
+        return user_service.delete_user(user_id)
+
+
+@app.route('/tags', methods=['GET', 'POST'])
+def tags():
+    if request.method == 'GET':
+        return tag_service.get_tags()
+    elif request.method == 'POST':
+        return tag_service.add_tag()
+
+
+@app.route('/tag/<tag_id>', methods=['GET', 'PUT', 'DELETE'])
+def tag(tag_id):
+    if request.method == 'GET':
+        return tag_service.get_tag(tag_id)
+    elif request.method == 'PUT':
+        return tag_service.update_tag(tag_id)
+    elif request.method == 'DELETE':
+        return tag_service.delete_tag(tag_id)
+
+
+@app.route('/subjects', methods=['GET', 'POST'])
+def subjects():
+    if request.method == 'GET':
+        return subject_service.get_subjects()
+    elif request.method == 'POST':
+        return subject_service.add_subject()
+
+
+@app.route('/subject/<subject_id>', methods=['GET', 'PUT', 'DELETE'])
+def subject(subject_id):
+    if request.method == 'GET':
+        return subject_service.get_subject(subject_id)
+    elif request.method == 'PUT':
+        return subject_service.update_subject(subject_id)
+    elif request.method == 'DELETE':
+        return subject_service.delete_subject(subject_id)
+
+
+from service import course_service
+
+
+@app.route('/courses', methods=['GET', 'POST'])
+def courses():
+    if request.method == 'GET':
+        return course_service.get_courses()
+    elif request.method == 'POST':
+        return course_service.add_course()
 
 
 @app.route('/course/<course_id>', methods=['GET', 'PUT', 'DELETE'])
-def course_by_id(course_id):
+def course(course_id=None):
     if request.method == 'GET':
-        pass
+        return course_service.get_course(course_id)
     elif request.method == 'PUT':
-        return edit_course(course_id)
+        return course_service.update_course(course_id)
     elif request.method == 'DELETE':
-        pass
+        return course_service.delete_course(course_id)
 
 
-@app.route('/subject', methods=['GET', 'POST'])
-def subject():
+@app.route('/lessons', methods=['GET', 'POST'])
+def lessons():
     if request.method == 'GET':
-        pass
+        return lesson_service.get_lessons()
     elif request.method == 'POST':
-        pass
-    elif request.method == 'PUT':
-        pass
-    elif request.method == 'DELETE':
-        pass
+        return lesson_service.add_lesson()
 
 
-@app.route('/tag', methods=['GET', 'POST'])
-def tag():
+@app.route('/lesson/<lesson_id>', methods=['GET', 'PUT', 'DELETE'])
+def lesson(lesson_id=None):
     if request.method == 'GET':
-        pass
-    elif request.method == 'POST':
-        pass
+        return lesson_service.get_lesson(lesson_id)
     elif request.method == 'PUT':
-        pass
+        return lesson_service.update_lesson(lesson_id)
     elif request.method == 'DELETE':
-        pass
+        return lesson_service.delete_lesson(lesson_id)
 
 
-@app.route('/video', methods=['POST', 'GET'])
-def video():
+from service import video_service
+
+
+@app.route('/videoes', methods=['GET', 'POST'])
+def videos():
     if request.method == 'GET':
-        pass
+        return video_service.get_videoes()
     elif request.method == 'POST':
-        pass
-    elif request.method == 'PUT':
-        pass
-    elif request.method == 'DELETE':
-        pass
+        return video_service.add_video()
 
 
-@app.route('/mostviewed', methods=['GET', 'POST'])
-def mostviewed():
+@app.route('/video/<video_id>', methods=['GET', 'PUT', 'DELETE'])
+def video(video_id=None):
     if request.method == 'GET':
-        pass
-    elif request.method == 'POST':
-        pass
+        return video_service.get_video(video_id)
     elif request.method == 'PUT':
-        pass
+        return video_service.update_video(video_id)
     elif request.method == 'DELETE':
-        pass
+        return video_service.delete_video(video_id)
 
 
-@app.route('/webinar', methods=['GET', 'POST'])
-def webinar():
-    if request.method == 'GET':
-        pass
-    elif request.method == 'POST':
-        pass
-    elif request.method == 'PUT':
-        pass
-    elif request.method == 'DELETE':
-        pass
-
-
-@app.route('/search', methods=['GET', 'POST'])
-def search():
-    if request.method == 'GET':
-        pass
-    elif request.method == 'POST':
-        pass
-    elif request.method == 'PUT':
-        pass
-    elif request.method == 'DELETE':
-        pass
-
-
-@app.route('/suggestion', methods=['GET', 'POST'])
-def suggestion():
-    if request.method == 'GET':
-        pass
-    elif request.method == 'POST':
-        pass
-    elif request.method == 'PUT':
-        pass
-    elif request.method == 'DELETE':
-        pass
-
+# Swagger-UI
+# from flask_swagger_ui import get_swaggerui_blueprint
+#
+# SWAGGER_URL = '/api/docs'  # URL for exposing Swagger UI (without trailing '/')
+# API_URL = 'http://petstore.swagger.io/v2/swagger.json'
+# # Call factory function to create our blueprint
+# swaggerui_blueprint = get_swaggerui_blueprint(
+#     SWAGGER_URL,  # Swagger UI static files will be mapped to '{SWAGGER_URL}/dist/'
+#     API_URL,
+#     config={  # Swagger UI config overrides
+#         'app_name': "Online Class"
+#     }
+# )
+# app.register_blueprint(swaggerui_blueprint)
 
 if __name__ == '__main__':
-    my_class = OnlineLearning()
+    # my_class = OnlineLearning()
     app.run()

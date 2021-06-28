@@ -1,24 +1,10 @@
-class Lesson:
-    @property
-    def id(self):
-        return self._id
+from app import db
 
-    @id.setter
-    def id(self, id):
-        self._id = id
 
-    @property
-    def lesson_name(self):
-        return self._lesson_name
+class Lesson(db.Model):
+    lesson_id = db.Column(db.Integer, primary_key=True, nullable=False)
+    lesson_name = db.Column(db.String(150), unique=True, nullable=False)
 
-    @lesson_name.setter
-    def lesson_name(self, lesson_name):
-        self._lesson_name = lesson_name
-
-    @property
-    def videos(self):
-        return self._videos
-
-    @videos.setter
-    def videos(self, videos):
-        self._videos = videos
+    def __init__(self, lesson_id, lesson_name):
+        self.lesson_id = lesson_id
+        self.lesson_name = lesson_name

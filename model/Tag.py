@@ -1,18 +1,10 @@
-class Tag:
+from app import db
 
-    @property
-    def tag_id(self):
-        return self._tag_id
 
-    @tag_id.setter
-    def tag_id(self, tag_id):
-        self._tag_id = tag_id
+class Tag(db.Model):
+    tag_id = db.Column(db.Integer, primary_key=True, nullable=False)
+    tag_name = db.Column(db.String(150), unique=True, nullable=False)
 
-    @property
-    def tag_name(self):
-        return self._tags
-
-    @tag_name.setter
-    def tag_name(self, tags):
-        self._tags = []
-        self._tags.extend(tags)
+    def __init__(self, tag_id, tag_name):
+        self.tag_id = tag_id
+        self.tag_name = tag_name

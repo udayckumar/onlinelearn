@@ -1,27 +1,10 @@
-class Course:
-    def __init__(self):
-        pass
+from app import db
 
-    @property
-    def course_id(self):
-        return self._course_id
 
-    @course_id.setter
-    def course_id(self, course_id):
-        self._course_id = course_id
+class Course(db.Model):
+    course_id = db.Column(db.Integer, primary_key=True, nullable=False)
+    course_name = db.Column(db.String(150), unique=True, nullable=False)
 
-    @property
-    def course_name(self):
-        return self._course_name
-
-    @course_name.setter
-    def course_name(self, course_name):
-        self._course_name = course_name
-
-    @property
-    def lessons(self):
-        return self._lessons
-
-    @lessons.setter
-    def lessons(self, lessons):
-        self._lessons = lessons
+    def __init__(self, course_id, course_name):
+        self.course_id = course_id
+        self.course_name = course_name

@@ -1,25 +1,12 @@
-class Video:
+from app import db
 
-    @property
-    def title(self):
-        return self._title
 
-    @title.setter
-    def title(self, title):
-        self._title = title
+class Video(db.Model):
+    video_id = db.Column(db.Integer, primary_key=True, nullable=False)
+    video_title = db.Column(db.String(150), unique=True, nullable=False)
+    video_link = db.Column(db.String(50), unique=True, nullable=False)
 
-    @property
-    def tags(self):
-        return self._tags
-
-    @tags.setter
-    def tags(self, tags):
-        self._tags = tags
-
-    @property
-    def video_url(self):
-        return self._video_url
-
-    @video_url.setter
-    def video_url(self, video_url):
-        self._video_url = video_url
+    def __init__(self, video_id, video_title, video_link):
+        self.video_id = video_id
+        self.video_title = video_title
+        self.video_link = video_link

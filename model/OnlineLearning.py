@@ -1,4 +1,4 @@
-class OnlineLearing:
+class OnlineLearning:
 
     def __init__(self):
         pass

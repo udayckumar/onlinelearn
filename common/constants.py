@@ -1,1 +1,0 @@
-# Constants for onlineclass project

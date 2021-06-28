@@ -1,77 +1,16 @@
-class User:
+from app import db
 
-    @property
-    def name(self):
-        return self._name
 
-    @name.setter
-    def name(self, name):
-        self._name = name
+class User(db.Model):
+    user_id = db.Column(db.Integer, primary_key=True, nullable=False)
+    user_name = db.Column(db.String(15), unique=True, nullable=False)
+    first_name = db.Column(db.String(25), unique=False, nullable=True)
+    last_name = db.Column(db.String(25), unique=False, nullable=True)
+    is_instructor = db.Column(db.Boolean, unique=False, nullable=False)
 
-    @property
-    def id(self):
-        return self._id
-
-    @id.setter
-    def id(self, id):
-        self._id = id
-
-    @property
-    def is_instructor(self):
-        return self._is_instructor
-
-    @is_instructor.setter
-    def is_instructor(self, is_instructor):
-        self._is_instructor = is_instructor
-
-    # CRUD ops on Course
-    def add_course(self, course):
-        pass
-
-    def edit_course(self, course):
-        pass
-
-    def remove_course(self, course):
-        pass
-
-    # CRUD ops on subject
-    def add_subject(self, subject):
-        pass
-
-    def edit_subject(self, subject):
-        pass
-
-    def remove_subject(self, subject):
-        pass
-
-    # CRUD ops on tags
-    def add_tag(self, tag):
-        pass
-
-    def edit_tag(self, tag):
-        pass
-
-    def remove_tag(self, tag):
-        pass
-
-    # CRUD ops on Video
-    def add_video(self, Video):
-        pass
-
-    def add_video_with_tag(self, Video, Tag):
-        pass
-
-    def add_webinar(self, Webinar):
-        pass
-
-    def add_webinar_with_tag(self, Webinar, Tag):
-        pass
-
-    def most_viewed_videos(self):
-        pass
-
-    def most_viewed_courses(self):
-        pass
-
-    def most_viewed_webinars(self):
-        pass
+    def __init__(self, user_id, user_name, first_name, last_name, is_instructor):
+        self.user_id = user_id
+        self.user_name = user_name
+        self.first_name = first_name
+        self.last_name = last_name
+        self.is_instructor = is_instructor
